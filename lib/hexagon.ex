@@ -115,8 +115,7 @@ defmodule Hexagon do
   end
 
   @doc ~S"""
-  Find direction of neighbouring hexagons based on given direction.
-  Returns a new Hexagon representing the direction as a vector.
+  Returns a new Hexagon representing the `direction` as a vector.
 
   Directions are enumerated in following order:
   ```
@@ -132,20 +131,20 @@ defmodule Hexagon do
   ```
 
   ## Examples:
-    iex> Hexagon.neighbour_direction(:north_east)
+    iex> Hexagon.directions(:north_east)
     %Hexagon{q: 1, r: 0, s: -1}
-    iex> Hexagon.neighbour_direction(:east)
+    iex> Hexagon.directions(:east)
     %Hexagon{q: 1, r: -1, s: 0}
-    iex> Hexagon.neighbour_direction(:south_east)
+    iex> Hexagon.directions(:south_east)
     %Hexagon{q: 0, r: -1, s: 1}
-    iex> Hexagon.neighbour_direction(:south_west)
+    iex> Hexagon.directions(:south_west)
     %Hexagon{q: -1, r: 0, s: 1}
-    iex> Hexagon.neighbour_direction(:west)
+    iex> Hexagon.directions(:west)
     %Hexagon{q: -1, r: 1, s: 0}
-    iex> Hexagon.neighbour_direction(:north_west)
+    iex> Hexagon.directions(:north_west)
     %Hexagon{q: 0, r: 1, s: -1}
   """
-  def neighbour_direction(direction) do
+  def directions(direction) do
     case direction do
       :north_east -> %Hexagon{q: 1, r: 0, s: -1}
       :east -> %Hexagon{q: 1, r: -1, s: 0}
@@ -154,5 +153,62 @@ defmodule Hexagon do
       :west -> %Hexagon{q: -1, r: 1, s: 0}
       :north_west -> %Hexagon{q: 0, r: 1, s: -1}
     end
+  end
+
+  @doc ~S"""
+  Finds the neighbouring tile of hexagon `a` at the given `direction`.
+  Returns a new Hexagon representing the neighbour hexagon.
+
+  Directions are enumerated in following order:
+  ```
+
+  :north_west        :north_east
+               .^.
+            .´r   q`.
+    :west   |       |  :east
+            `.  s  .´
+               `.´
+  :south_west        :south_east
+
+  ```
+
+  ## Examples:
+    iex> a = %Hexagon{q: 1, r: 2, s: 3}
+    iex> Hexagon.neighbour(a, :south_west)
+    %Hexagon{q: 0, r: 2, s: 4}
+    iex> Hexagon.neighbour(a, :north_east)
+    %Hexagon{q: 2, r: 2, s: 2}
+  """
+  def neighbour(%Hexagon{} = a, direction) do
+    Hexagon.add(a, Hexagon.directions(direction))
+  end
+
+  @doc ~S"""
+  Returns the distance of hexagon `a` from origo as an integer.
+
+  ## Examples:
+    iex> a = %Hexagon{q: 1, r: 2, s: 3}
+    iex> Hexagon.length(a)
+    3
+    iex> b = %Hexagon{q: -2, r: 2, s: -3}
+    iex> Hexagon.length(b)
+    3
+  """
+  def length(%Hexagon{} = a) do
+    div((abs(a.q) + abs(a.r) + abs(a.s)), 2)
+  end
+
+  @doc ~S"""
+  Calculates the distance between hexagons `a` and `b`.
+  Return value is an integer value.
+
+  ## Examples:
+    iex> a = %Hexagon{q: 1, r: 2, s: 3}
+    iex> b = %Hexagon{q: -2, r: 2, s: -3}
+    iex> Hexagon.distance(a, b)
+    4
+  """
+  def distance(%Hexagon{} = a, %Hexagon{} = b) do
+    Hexagon.length(Hexagon.subtract(a, b))
   end
 end
