@@ -1,4 +1,6 @@
-defmodule Hexagon do
+defmodule Hexgrid.Hexagon do
+  alias Hexgrid.Hexagon, as: Hexagon
+
   @moduledoc """
   Hexagon module that represents Hexagon tiles using cube coordinates.
   Instead of names x, y, z this module uses names q, r, s.

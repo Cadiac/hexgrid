@@ -1,4 +1,4 @@
-defmodule Point do
+defmodule Hexgrid.Point do
   @moduledoc """
   Documentation for Point.
   """

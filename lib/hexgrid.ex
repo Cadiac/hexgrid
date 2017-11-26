@@ -1,23 +1,10 @@
 defmodule Hexgrid do
+  require Logger
+  alias Hexgrid.Hexagon
+
   @moduledoc """
   Documentation for Hexgrid.
   """
-
-  require Logger
-  alias Hexagon
-
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> Hexgrid.hello
-      :world
-
-  """
-  def hello do
-    :world
-  end
 
   defp create_row(mapset, _r, q) when q <= 0 do
     mapset
