@@ -7,61 +7,48 @@ defmodule Hexgrid do
   Documentation for Hexgrid.
   """
 
-  defp create_row(mapset, _r, q) when q <= 0 do
+  defp create_row(mapset, _row, col) when col <= 0 do
     mapset
   end
 
-  defp create_row(mapset, r, q) do
-    MapSet.put(mapset, %Hexagon{q: q, r: r, s: -q - r})
-    |> create_row(r, q - 1)
+  defp create_row(mapset, row, col) do
+    hexagon = Offset.roffset_to_cube(0, %Offset{col: col, row: row})
+
+    mapset
+    |> MapSet.put(hexagon)
+    |> create_row(row, col - 1)
   end
 
-  def create(mapset, r, _q) when r <= 0 do
+  def create(mapset, row, _col) when row <= 0 do
     mapset
   end
 
-  def create(mapset, r, q) do
-    mapset = create_row(mapset, r, q)
-    create(mapset, r - 1, q)
-  end
-
-  def draw() do
-    Logger.info "
-           .^.     .^.
-        .´1   1`.´0   2`.
-        |       |       |
-       .^. -2  .^. -2  .^.
-    .´1   0`.´0   1`.´-1  2`.
-    |       |       |       |
-    `. -1  .^. -1  .^. -1  .´
-       `.´0   0`.´-1  1`.´
-        |       |       |
-        `.  0  .^.  0  .´
-           `.´     `.´
-    "
+  def create(mapset, row, col) do
+    mapset = create_row(mapset, row, col)
+    create(mapset, row - 1, col)
   end
 
   defp hexagon_row_string(i, type) when i == 0 do
     case type do
-      :top -> "   .^.   "
-      :top_coords -> ".´     `."
+      :top           -> "   .^.   "
+      :top_coords    -> ".´     `."
       :middle -> "|<%= col %> <%= row %>|"
       :bottom_coords -> "^.     .^"
-      :bottom -> "   `.´   "
+      :bottom        -> "   `.´   "
     end
   end
 
   defp hexagon_row_string(_, type) do
     case type do
-      :top -> "  .^.   "
-      :top_coords -> "´     `."
+      :top           -> "  .^.   "
+      :top_coords    -> "´     `."
       :middle -> "<%= col %> <%= row %>|"
       :bottom_coords -> ".     .^"
-      :bottom -> "  `.´   "
+      :bottom        -> "  `.´   "
     end
   end
 
-  defp draw_hexagon_row(%Hexagon{} = h, i, type) do
+  defp draw_hexagon_row_partial(%Hexagon{} = h, i, type) do
     row_string = hexagon_row_string(i, type)
 
     case type do
@@ -74,29 +61,76 @@ defmodule Hexgrid do
     end
   end
 
+  defp is_first_row(row, min_row) do
+    hd(row).r == min_row
+  end
+
+  defp offset_whitespace(row, min_row) do
+    String.duplicate("    ", hd(row).r - min_row)
+  end
+
+  defp draw_hexagon_row(row, min_row, max_row) do
+    whitespace = offset_whitespace(row, min_row)
+
+    cond do
+      is_first_row(row, min_row) ->
+        Enum.join([
+          "\n",
+          row
+          |> Enum.with_index
+          |> Enum.map(fn({v, k})
+            -> draw_hexagon_row_partial(v, k, :top) end),
+          row
+          |> Enum.with_index
+          |> Enum.map(fn({v, k})
+            -> draw_hexagon_row_partial(v, k, :top_coords) end),
+          row
+          |> Enum.with_index
+          |> Enum.map(fn({v, k})
+            -> draw_hexagon_row_partial(v, k, :middle) end),
+          row
+          |> Enum.with_index
+          |> Enum.map(fn({v, k})
+            -> draw_hexagon_row_partial(v, k, :bottom_coords) end),
+          row
+          |> Enum.with_index
+          |> Enum.map(fn({v, k})
+            -> draw_hexagon_row_partial(v, k, :bottom) end),
+        ], "\n") <> "\n"
+      true ->
+        Enum.join([
+          [whitespace |
+            row
+            |> Enum.with_index
+            |> Enum.map(fn({v, k})
+              -> draw_hexagon_row_partial(v, k, :middle) end)],
+          [whitespace |
+            row
+            |> Enum.with_index
+            |> Enum.map(fn({v, k})
+              -> draw_hexagon_row_partial(v, k, :bottom_coords) end)],
+          [whitespace |
+            row
+            |> Enum.with_index
+            |> Enum.map(fn({v, k})
+              -> draw_hexagon_row_partial(v, k, :bottom) end)],
+        ], "\n") <> "\n"
+    end
+  end
+
+  defp filter_row(%MapSet{} = mapset, row) do
+    mapset
+    |> Enum.filter(fn(h) -> h.r == row end)
+    |> Enum.sort(fn(a, b) -> a.q <= b.q end)
+  end
+
   def draw(%MapSet{} = mapset) do
-    Logger.info Enum.join([
-      "\n",
-      mapset
-      |> Enum.with_index
-      |> Enum.map(fn({v, k})
-        -> draw_hexagon_row(v, k, :top) end),
-      mapset
-      |> Enum.with_index
-      |> Enum.map(fn({v, k})
-        -> draw_hexagon_row(v, k, :top_coords) end),
-      mapset
-      |> Enum.with_index
-      |> Enum.map(fn({v, k})
-        -> draw_hexagon_row(v, k, :middle) end),
-      mapset
-      |> Enum.with_index
-      |> Enum.map(fn({v, k})
-        -> draw_hexagon_row(v, k, :bottom_coords) end),
-      mapset
-      |> Enum.with_index
-      |> Enum.map(fn({v, k})
-        -> draw_hexagon_row(v, k, :bottom) end),
-    ], "\n")
+    max_row = Enum.max_by(mapset, fn(h) -> h.r end).r
+    min_row = Enum.min_by(mapset, fn(h) -> h.r end).r
+
+    rows = Enum.map(min_row..max_row, fn(row) -> filter_row(mapset, row) end)
+
+    Enum.map(rows, fn(row) -> draw_hexagon_row(row, min_row, max_row) end)
+    |> Logger.info
   end
 end
