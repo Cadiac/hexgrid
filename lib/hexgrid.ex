@@ -1,6 +1,7 @@
 defmodule Hexgrid do
   require Logger
   alias Hexgrid.Hexagon
+  alias Hexgrid.Offset
 
   @moduledoc """
   Documentation for Hexgrid.
@@ -43,9 +44,9 @@ defmodule Hexgrid do
   defp hexagon_row_string(i, type) when i == 0 do
     case type do
       :top -> "   .^.   "
-      :top_coords -> ".´<%= r %> <%= q %>`."
-      :middle -> "|       |"
-      :bottom_coords -> "^. <%= s %> .^"
+      :top_coords -> ".´     `."
+      :middle -> "|<%= col %> <%= row %>|"
+      :bottom_coords -> "^.     .^"
       :bottom -> "   `.´   "
     end
   end
@@ -53,9 +54,9 @@ defmodule Hexgrid do
   defp hexagon_row_string(_, type) do
     case type do
       :top -> "  .^.   "
-      :top_coords -> "´<%= r %> <%= q %>`."
-      :middle -> "       |"
-      :bottom_coords -> ". <%= s %> .^"
+      :top_coords -> "´     `."
+      :middle -> "<%= col %> <%= row %>|"
+      :bottom_coords -> ".     .^"
       :bottom -> "  `.´   "
     end
   end
@@ -64,14 +65,10 @@ defmodule Hexgrid do
     row_string = hexagon_row_string(i, type)
 
     case type do
-      :top_coords -> row_string
+      :middle -> row_string
         |> EEx.eval_string([
-          r: h.r |> Integer.to_string |> String.pad_trailing(2),
-          q: h.q |> Integer.to_string |> String.pad_leading(2)
-        ])
-      :bottom_coords -> row_string
-        |> EEx.eval_string([
-        s: h.s |> Integer.to_string |> String.pad_leading(3)
+          col: Offset.roffset_from_cube(0, h).col |> Integer.to_string |> String.pad_leading(3),
+          row: Offset.roffset_from_cube(0, h).row |> Integer.to_string |> String.pad_trailing(3)
         ])
       _default -> row_string
     end
