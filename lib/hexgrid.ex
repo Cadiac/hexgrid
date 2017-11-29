@@ -1,5 +1,6 @@
 defmodule Hexgrid do
   require Logger
+  require Integer
   alias Hexgrid.Hexagon
   alias Hexgrid.Offset
 
@@ -89,9 +90,9 @@ defmodule Hexgrid do
   defp cube_hexagon_partial(i, type) when i == 0 do
     case type do
       :top           -> "   .^.   "
-      :top_coords    -> ".´<%= r %> <%= q %>`."
+      :top_coords    -> ".´<%= s %> <%= q %>`."
       :middle        -> "|       |"
-      :bottom_coords -> "^. <%= s %> .^"
+      :bottom_coords -> "^. <%= r %> .^"
       :bottom        -> "   `.´   "
     end
   end
@@ -99,9 +100,9 @@ defmodule Hexgrid do
   defp cube_hexagon_partial(_, type) do
     case type do
       :top           -> "  .^.   "
-      :top_coords    -> "´<%= r %> <%= q %>`."
+      :top_coords    -> "´<%= s %> <%= q %>`."
       :middle        -> "       |"
-      :bottom_coords -> ". <%= s %> .^"
+      :bottom_coords -> ". <%= r %> .^"
       :bottom        -> "  `.´   "
     end
   end
@@ -125,12 +126,12 @@ defmodule Hexgrid do
     case type do
       :top_coords -> partial
         |> EEx.eval_string([
-          r: h.r |> Integer.to_string |> String.pad_trailing(2),
+          s: h.s |> Integer.to_string |> String.pad_trailing(2),
           q: h.q |> Integer.to_string |> String.pad_leading(2)
         ])
       :bottom_coords -> partial
         |> EEx.eval_string([
-          s: h.s |> Integer.to_string |> String.pad_leading(3)
+          r: h.r |> Integer.to_string |> String.pad_leading(3)
         ])
       _default -> partial
     end
@@ -152,12 +153,22 @@ defmodule Hexgrid do
     head.row == max_row
   end
 
-  defp offset_whitespace([%Hexagon{} = head | _], min_row) do
-    String.duplicate("    ", head.r - min_row)
+  defp offset_whitespace([%Hexagon{} = head | _], _min_row) do
+    cond do
+      Integer.is_even(head.r) ->
+        "    "
+      Integer.is_odd(head.r) ->
+        ""
+    end
   end
 
-  defp offset_whitespace([%Offset{} = head | _], min_row) do
-    String.duplicate("    ", head.row - min_row)
+  defp offset_whitespace([%Offset{} = head | _], _min_row) do
+    cond do
+      Integer.is_even(head.row) ->
+        "    "
+      Integer.is_odd(head.row) ->
+        ""
+    end
   end
 
   defp maybe_draw_top(result, row, whitespace, min_row) do

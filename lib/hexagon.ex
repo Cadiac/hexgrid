@@ -8,20 +8,15 @@ defmodule Hexgrid.Hexagon do
   Cube coordinates have a constraint `q + r + s = 0`,
   even with floating point cube coordinates. This has to be always respected.
 
-  Axes are aligned as follows:
+  Axes are aligned in the following order:
   ```
-             -s
-             .^.
-          .´     `.
-    +r .´           `. +q
-      |               |
-      .               .
-      |               |
-    -q `.           .´ -r
-          `.     .´
-             `.´
-             +s
-
+         -r
+    +s   .^.   +q
+      .´     `.
+      |       |
+      `.     .´
+    -q   `.´   -s
+         +r
   ```
   """
 
@@ -95,9 +90,9 @@ defmodule Hexgrid.Hexagon do
     .´     `.´     `.´     `.´     `.
     |       |       |       |       |
     `.     .^.     .^.     .^.     .^.
-       `.´     `.´r   q`.´     `.´-2  2`.
+       `.´     `.´s   q`.´     `.´-2  2`.
         |       |       |       |       |
-        `.     .^.  s  .^.     .^.  0  .´
+        `.     .^.  r  .^.     .^.  0  .´
            `.´     `.´     `.´     `.´
             |       |       |       |
             `.     .^.     .^.     .´
@@ -106,16 +101,16 @@ defmodule Hexgrid.Hexagon do
   ```
 
   ## Examples:
-    iex> a = %Hexagon{q: 2, r: 0, s: -2}
+    iex> a = %Hexagon{q: 2, r: -2, s: 0}
     iex> Hexagon.rotate(a, :left)
-    %Hexagon{q: 0, r: 2, s: -2}
+    %Hexagon{q: 0, r: -2, s: 2}
     iex> Hexagon.rotate(a, :right)
-    %Hexagon{q: 2, r: -2, s: 0}
+    %Hexagon{q: 2, r: 0, s: -2}
   """
   def rotate(%Hexagon{} = h, direction) do
     case direction do
-      :left -> %Hexagon{q: -h.r, r: -h.s, s: -h.q}
-      :right -> %Hexagon{q: -h.s, r: -h.q, s: -h.r}
+      :left -> %Hexagon{q: -h.s, r: -h.q, s: -h.r}
+      :right -> %Hexagon{q: -h.r, r: -h.s, s: -h.q}
     end
   end
 
@@ -127,9 +122,9 @@ defmodule Hexgrid.Hexagon do
 
   :north_west        :north_east
                .^.
-            .´r   q`.
+            .´s   q`.
     :west   |       |  :east
-            `.  s  .´
+            `.  r  .´
                `.´
   :south_west        :south_east
 
@@ -137,31 +132,31 @@ defmodule Hexgrid.Hexagon do
 
   ## Examples:
     iex> Hexagon.directions(:north_east)
-    %Hexagon{q: 1, r: 0, s: -1}
-
-    iex> Hexagon.directions(:east)
     %Hexagon{q: 1, r: -1, s: 0}
 
+    iex> Hexagon.directions(:east)
+    %Hexagon{q: 1, r: 0, s: -1}
+
     iex> Hexagon.directions(:south_east)
-    %Hexagon{q: 0, r: -1, s: 1}
+    %Hexagon{q: 0, r: 1, s: -1}
 
     iex> Hexagon.directions(:south_west)
-    %Hexagon{q: -1, r: 0, s: 1}
-
-    iex> Hexagon.directions(:west)
     %Hexagon{q: -1, r: 1, s: 0}
 
+    iex> Hexagon.directions(:west)
+    %Hexagon{q: -1, r: 0, s: 1}
+
     iex> Hexagon.directions(:north_west)
-    %Hexagon{q: 0, r: 1, s: -1}
+    %Hexagon{q: 0, r: -1, s: 1}
   """
   def directions(direction) do
     case direction do
-      :north_east -> %Hexagon{q: 1, r: 0, s: -1}
-      :east -> %Hexagon{q: 1, r: -1, s: 0}
-      :south_east -> %Hexagon{q: 0, r: -1, s: 1}
-      :south_west -> %Hexagon{q: -1, r: 0, s: 1}
-      :west -> %Hexagon{q: -1, r: 1, s: 0}
-      :north_west -> %Hexagon{q: 0, r: 1, s: -1}
+      :north_east -> %Hexagon{q: 1, r: -1, s: 0}
+      :east -> %Hexagon{q: 1, r: 0, s: -1}
+      :south_east -> %Hexagon{q: 0, r: 1, s: -1}
+      :south_west -> %Hexagon{q: -1, r: 1, s: 0}
+      :west -> %Hexagon{q: -1, r: 0, s: 1}
+      :north_west -> %Hexagon{q: 0, r: -1, s: 1}
     end
   end
 
@@ -174,9 +169,9 @@ defmodule Hexgrid.Hexagon do
 
   :north_west        :north_east
                .^.
-            .´r   q`.
+            .´s   q`.
     :west   |       |  :east
-            `.  s  .´
+            `.  r  .´
                `.´
   :south_west        :south_east
 
@@ -201,11 +196,11 @@ defmodule Hexgrid.Hexagon do
 
   ## Examples:
 
-    iex> a = %Hexagon{q: 1, r: 0, s: -1}
+    iex> a = %Hexagon{q: 1, r: -1, s: 0}
     iex> Hexagon.neighbour(a, :north_east)
-    %Hexagon{q: 2, r: 0, s: -2}
+    %Hexagon{q: 2, r: -2, s: 0}
     iex> Hexagon.neighbour(a, :north_west)
-    %Hexagon{q: 1, r: 1, s: -2}
+    %Hexagon{q: 1, r: -2, s: 1}
   """
   def neighbour(%Hexagon{} = h, direction) do
     Hexagon.add(h, Hexagon.directions(direction))

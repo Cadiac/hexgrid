@@ -37,6 +37,8 @@ defmodule Hexgrid.Offset do
   @doc """
   Converts Offset in pointy top r-offset coordinates to Hexagon.
 
+  TODO: THIS SHOULD BE CALLED soffset! S is the "row"
+
   ## Examples:
     iex> a = %Offset{col: 5, row: 3}
     iex> b = %Offset{col: 6, row: 3}
