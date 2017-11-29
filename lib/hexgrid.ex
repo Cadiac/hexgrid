@@ -11,8 +11,8 @@ defmodule Hexgrid do
   Returns a MapSet containing grid of `row` rows and `col` columns of Hexagons.
   Top left corner of the grid is at %Hexagon{q: 0, r: 0, s: 0}
   """
-  def create(row, col) do
-    create(MapSet.new, row, col)
+  def create(offset_col, offset_row, rows, columns) do
+    create(MapSet.new, offset_col, offset_row, rows, columns)
   end
 
   @doc ~S"""
@@ -44,25 +44,26 @@ defmodule Hexgrid do
     Logger.info ["\n" | formatted_rows]
   end
 
-  defp create(mapset, row, _col) when row < 0 do
+  defp create(mapset, _offset_col, _offset_row, rows, _columns) when rows < 0 do
     mapset
   end
 
-  defp create(mapset, row, col) do
-    mapset = create_row(mapset, row, col)
-    create(mapset, row - 1, col)
+  defp create(mapset, offset_col, offset_row, rows, columns) do
+    mapset = create_row(mapset, offset_col, offset_row, rows, columns)
+    create(mapset, offset_col, offset_row, rows - 1, columns)
   end
 
-  defp create_row(mapset, _row, col) when col < 0 do
+  defp create_row(mapset, _offset_col, _offset_row, _rows, columns) when columns < 0 do
     mapset
   end
 
-  defp create_row(mapset, row, col) do
-    hexagon = Offset.roffset_to_cube(0, %Offset{col: col, row: row})
+  defp create_row(mapset, offset_col, offset_row, rows, columns) do
+    hexagon = Offset.roffset_to_cube(0, %Offset{
+      col: columns + offset_col, row: rows + offset_row})
 
     mapset
     |> MapSet.put(hexagon)
-    |> create_row(row, col - 1)
+    |> create_row(offset_col, offset_row, rows, columns - 1)
   end
 
   defp offset_hexagon_partial(i, type) when i == 0 do
