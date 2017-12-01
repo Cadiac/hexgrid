@@ -6,4 +6,5 @@ defmodule HexagonTest do
 
   doctest Hexagon
   doctest Offset
+  doctest Hexgrid
 end

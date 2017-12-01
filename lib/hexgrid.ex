@@ -3,6 +3,7 @@ defmodule Hexgrid do
   require Integer
   alias Hexgrid.Hexagon
   alias Hexgrid.Offset
+  use Bitwise
 
   @moduledoc """
   Hexgrid utilities
@@ -20,12 +21,13 @@ defmodule Hexgrid do
   Logs visualization of `mapset` using cube coordinates to console with logger level info.
   """
   def draw_cube(%MapSet{} = mapset) do
-    max_row = Enum.max_by(mapset, fn(h) -> h.r end).r
-    min_row = Enum.min_by(mapset, fn(h) -> h.r end).r
+    %{:min_col => min_col,
+      :min_row => min_row,
+      :max_row => max_row} = boundaries(mapset)
 
     rows = Enum.map(min_row..max_row, fn(row) -> filter_by_row(mapset, row) end)
 
-    formatted_rows = Enum.map(rows, fn(row) -> draw_hexagon_row(row, min_row, max_row) end)
+    formatted_rows = Enum.map(rows, fn(row) -> draw_hexagon_row(row, min_row, max_row, min_col) end)
 
     Logger.info ["\n" | formatted_rows]
   end
@@ -34,15 +36,33 @@ defmodule Hexgrid do
   Logs visualization of `mapset` using offset coordinates to console with logger level info.
   """
   def draw_offset(%MapSet{} = mapset) do
-    max_row = Enum.max_by(mapset, fn(h) -> h.r end).r
-    min_row = Enum.min_by(mapset, fn(h) -> h.r end).r
+    %{:min_col => min_col,
+      :min_row => min_row,
+      :max_row => max_row} = boundaries(mapset)
 
     rows = Enum.map(min_row..max_row, fn(row) -> filter_by_row(mapset, row) end)
 
     formatted_rows = Enum.map(rows, fn(row) -> draw_hexagon_row(
-      Enum.map(row, fn(h) -> Offset.roffset_from_cube(0, h) end), min_row, max_row) end)
+      Enum.map(row, fn(h) -> Offset.roffset_from_cube(h) end), min_row, max_row, min_col) end)
 
     Logger.info ["\n" | formatted_rows]
+  end
+
+  @doc ~S"""
+  Finds the Hexagons representing boundaries of a MapSet.
+
+  iex> a = Hexgrid.create(-2, -2, 4, 4)
+  iex> b = Hexgrid.create(-3, -5, 4, 4)
+  iex> Hexgrid.boundaries(a)
+  %{max_col: 2, max_row: 2, min_col: -2, min_row: -2}
+  iex> Hexgrid.boundaries(b)
+  %{max_col: 1, max_row: -1, min_col: -3, min_row: -5}
+  """
+  def boundaries(%MapSet{} = mapset) do
+    %{:min_col => mapset |> min_col,
+      :max_col => mapset |> max_col,
+      :min_row => mapset |> min_row,
+      :max_row => mapset |> max_row}
   end
 
   defp create(mapset, _offset_col, _offset_row, rows, _columns) when rows < 0 do
@@ -59,7 +79,7 @@ defmodule Hexgrid do
   end
 
   defp create_row(mapset, offset_col, offset_row, rows, columns) do
-    hexagon = Offset.roffset_to_cube(0, %Offset{
+    hexagon = Offset.roffset_to_cube(%Offset{
       col: columns + offset_col, row: rows + offset_row})
 
     mapset
@@ -153,22 +173,16 @@ defmodule Hexgrid do
     head.row == max_row
   end
 
-  defp offset_whitespace([%Hexagon{} = head | _], _min_row) do
-    cond do
-      Integer.is_even(head.r) ->
-        "    "
-      Integer.is_odd(head.r) ->
-        ""
-    end
-  end
+  defp empty_columns(%Offset{} = h, min_col), do: h.col - min_col
+  defp empty_columns(%Hexagon{} = h, min_col), do: Offset.roffset_from_cube(h).col - min_col
 
-  defp offset_whitespace([%Offset{} = head | _], _min_row) do
-    cond do
-      Integer.is_even(head.row) ->
-        "    "
-      Integer.is_odd(head.row) ->
-        ""
-    end
+  defp offset_whitespace([head | _], min_col) do
+    # Indent for 8 spaces per each empty Hexagon
+    empty_cols = empty_columns(head, min_col)
+    # Indent for 4 spaces on even rows
+    even = (head.row + 1) &&& 1
+
+    String.duplicate(" ", 8 * empty_cols + 4 * even)
   end
 
   defp maybe_draw_top(result, row, whitespace, min_row) do
@@ -196,8 +210,8 @@ defmodule Hexgrid do
       |> Kernel.++(["\n"])]
   end
 
-  defp draw_hexagon_row(row, min_row, max_row) do
-    whitespace = offset_whitespace(row, min_row)
+  defp draw_hexagon_row(row, min_row, max_row, min_col) do
+    whitespace = offset_whitespace(row, min_col)
 
     maybe_draw_top([], row, whitespace, min_row)
     |> draw_section(row, whitespace, :top_coords)
@@ -212,4 +226,14 @@ defmodule Hexgrid do
     |> Enum.filter(fn(h) -> h.r == row end)
     |> Enum.sort(fn(a, b) -> a.q <= b.q end)
   end
+
+  defp cube_to_offset_mapset(%MapSet{} = mapset) do
+    Enum.map(mapset, fn(h) -> Offset.roffset_from_cube(h) end)
+  end
+
+  defp min_col(%MapSet{} = mapset), do: Enum.min_by(cube_to_offset_mapset(mapset), fn(x) -> x.col end).col
+  defp max_col(%MapSet{} = mapset), do: Enum.max_by(cube_to_offset_mapset(mapset), fn(x) -> x.col end).col
+  defp min_row(%MapSet{} = mapset), do: Enum.min_by(cube_to_offset_mapset(mapset), fn(x) -> x.row end).row
+  defp max_row(%MapSet{} = mapset), do: Enum.max_by(cube_to_offset_mapset(mapset), fn(x) -> x.row end).row
+
 end
