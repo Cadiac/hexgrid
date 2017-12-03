@@ -38,11 +38,28 @@ defmodule Hexgrid do
   defp min_row(%MapSet{} = mapset), do: Enum.min_by(cube_to_offset_mapset(mapset), fn(x) -> x.row end).row
   defp max_row(%MapSet{} = mapset), do: Enum.max_by(cube_to_offset_mapset(mapset), fn(x) -> x.row end).row
 
+  @doc ~S"""
+  Checks if Hexagon has any neighbour in direction at MapSet
+
+  iex> h = Hexgrid.create(-2, -2, 4, 4)
+  iex> Hexgrid.has_neighbour(h, %Hexagon{q: 1, r: -2, s: 1}, :east)
+  true
+  iex> Hexgrid.has_neighbour(h, %Hexagon{q: 1, r: -2, s: 1}, :north_east)
+  false
+  """
   def has_neighbour(%MapSet{} = mapset, %Hexagon{} = h, direction) do
     mapset
     |> MapSet.member?(Hexagon.neighbour(h, direction))
   end
 
+  @doc ~S"""
+  Checks if Hexagon has any neighbours in MapSet
+
+  iex> h = Hexgrid.create(-2, -2, 4, 4)
+  iex> Hexgrid.has_neighbour(h, %Hexagon{q: 1, r: -2, s: 1})
+  %{east: true, north_east: false, north_west: false, south_east: true,
+  south_west: true, west: true}
+  """
   def has_neighbour(%MapSet{} = mapset, %Hexagon{} = h) do
     %{:north_east => has_neighbour(mapset, h, :north_east),
       :east => has_neighbour(mapset, h, :east),
