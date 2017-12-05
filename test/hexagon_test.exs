@@ -1,10 +1,10 @@
 defmodule HexagonTest do
   use ExUnit.Case
 
-  alias Hexgrid.Hexagon, as: Hexagon
+  alias Hexgrid.Cube, as: Cube
   alias Hexgrid.Offset, as: Offset
 
-  doctest Hexagon
+  doctest Cube
   doctest Offset
   doctest Hexgrid
 end

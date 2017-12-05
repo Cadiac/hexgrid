@@ -2,7 +2,7 @@ defmodule Hexgrid.Logger do
   require Integer
   require Logger
   use Bitwise
-  alias Hexgrid.Hexagon
+  alias Hexgrid.Cube
   alias Hexgrid.Offset
   import Hexgrid, only: [boundaries: 1]
 
@@ -99,7 +99,7 @@ defmodule Hexgrid.Logger do
     end
   end
 
-  defp draw_hexagon_row_partial(%Hexagon{} = h, i, type) do
+  defp draw_hexagon_row_partial(%Cube{} = h, i, type) do
     partial = cube_hexagon_partial(i, type)
 
     case type do
@@ -117,7 +117,7 @@ defmodule Hexgrid.Logger do
   end
 
 
-  defp is_first_row([%Hexagon{} = head | _], min_row) do
+  defp is_first_row([%Cube{} = head | _], min_row) do
     head.r == min_row
   end
 
@@ -125,7 +125,7 @@ defmodule Hexgrid.Logger do
     head.row == min_row
   end
 
-  defp is_last_row([%Hexagon{} = head | _], max_row) do
+  defp is_last_row([%Cube{} = head | _], max_row) do
     head.r == max_row
   end
 
@@ -134,9 +134,9 @@ defmodule Hexgrid.Logger do
   end
 
   defp empty_columns(%Offset{} = h, min_col), do: h.col - min_col
-  defp empty_columns(%Hexagon{} = h, min_col), do: Offset.roffset_from_cube(h).col - min_col
+  defp empty_columns(%Cube{} = h, min_col), do: Offset.roffset_from_cube(h).col - min_col
 
-  defp even_row_offset(%Hexagon{} = h), do: (h.r + 1) &&& 1
+  defp even_row_offset(%Cube{} = h), do: (h.r + 1) &&& 1
   defp even_row_offset(%Offset{} = h), do: (h.row + 1) &&& 1
 
   defp offset_whitespace([head | _], min_col) do

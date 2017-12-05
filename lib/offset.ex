@@ -1,10 +1,10 @@
 defmodule Hexgrid.Offset do
   alias Hexgrid.Offset, as: Offset
-  alias Hexgrid.Hexagon
+  alias Hexgrid.Cube
   use Bitwise
 
   @moduledoc """
-  Hexagon module that represents Hexagon tiles using offset coordinates.
+  Hexagon module that represents hexagon tiles using offset coordinates.
   Instead of names x, y this module uses names col and row.
 
   Coordinates in q-offset system represent hexagons in pointy top orientation,
@@ -21,10 +21,10 @@ defmodule Hexgrid.Offset do
   defstruct col: 0, row: 0
 
   @doc """
-  Converts Hexagon in cube coordinates to pointy top r-offset coordinates.
+  Converts hexagon in Cube coordinates to pointy top r-offset coordinates.
 
   ## Examples:
-    iex> h = %Hexagon{q: 4, r: 3, s: -7}
+    iex> h = %Cube{q: 4, r: 3, s: -7}
     iex> Offset.roffset_from_cube(h)
     %Offset{col: 5, row: 3}
     iex> Offset.roffset_from_cube(h, 0)
@@ -32,7 +32,7 @@ defmodule Hexgrid.Offset do
     iex> Offset.roffset_from_cube(h, 1)
     %Offset{col: 6, row: 3}
   """
-  def roffset_from_cube(%Hexagon{} = h, offset \\ 0) do
+  def roffset_from_cube(%Cube{} = h, offset \\ 0) do
     col = h.q + div((h.r + offset * (h.r &&& 1)), 2)
     row = h.r
 
@@ -40,31 +40,31 @@ defmodule Hexgrid.Offset do
   end
 
   @doc """
-  Converts Offset in pointy top r-offset coordinates to Hexagon.
+  Converts Offset in pointy top r-offset coordinates to Cube.
 
   ## Examples:
     iex> a = %Offset{col: 5, row: 3}
     iex> b = %Offset{col: 6, row: 3}
     iex> Offset.roffset_to_cube(a)
-    %Hexagon{q: 4, r: 3, s: -7}
+    %Cube{q: 4, r: 3, s: -7}
     iex> Offset.roffset_to_cube(a, 0)
-    %Hexagon{q: 4, r: 3, s: -7}
+    %Cube{q: 4, r: 3, s: -7}
     iex> Offset.roffset_to_cube(b, 1)
-    %Hexagon{q: 4, r: 3, s: -7}
+    %Cube{q: 4, r: 3, s: -7}
   """
   def roffset_to_cube(%Offset{} = h, offset \\ 0) do
     q = h.col - div((h.row + offset * (h.row &&& 1)), 2)
     r = h.row
     s = -q - r
 
-    %Hexagon{q: q, r: r, s: s}
+    %Cube{q: q, r: r, s: s}
   end
 
   @doc """
-  Converts Hexagon in cube coordinates to flat top q-offset coordinates.
+  Converts Cube in cube coordinates to flat top q-offset coordinates.
 
   ## Examples:
-    iex> h = %Hexagon{q: 3, r: 4, s: -7}
+    iex> h = %Cube{q: 3, r: 4, s: -7}
     iex> Offset.qoffset_from_cube(h)
     %Offset{col: 3, row: 5}
     iex> Offset.qoffset_from_cube(h, 0)
@@ -72,7 +72,7 @@ defmodule Hexgrid.Offset do
     iex> Offset.qoffset_from_cube(h, 1)
     %Offset{col: 3, row: 6}
   """
-  def qoffset_from_cube(%Hexagon{} = h, offset \\ 0) do
+  def qoffset_from_cube(%Cube{} = h, offset \\ 0) do
     col = h.q
     row = h.r + div((h.q + offset * (h.q &&& 1)), 2)
 
@@ -80,23 +80,23 @@ defmodule Hexgrid.Offset do
   end
 
   @doc """
-  Converts Offset in flat top q-offset coordinates to Hexagon.
+  Converts Offset in flat top q-offset coordinates to Cube.
 
   ## Examples:
     iex> a = %Offset{col: 3, row: 5}
     iex> b = %Offset{col: 3, row: 6}
     iex> Offset.qoffset_to_cube(a)
-    %Hexagon{q: 3, r: 4, s: -7}
+    %Cube{q: 3, r: 4, s: -7}
     iex> Offset.qoffset_to_cube(a, 0)
-    %Hexagon{q: 3, r: 4, s: -7}
+    %Cube{q: 3, r: 4, s: -7}
     iex> Offset.qoffset_to_cube(b, 1)
-    %Hexagon{q: 3, r: 4, s: -7}
+    %Cube{q: 3, r: 4, s: -7}
   """
   def qoffset_to_cube(%Offset{} = h, offset \\ 0) do
     q = h.col;
     r = h.row - div((h.col + offset * (h.col &&& 1)), 2)
     s = -q - r
 
-    %Hexagon{q: q, r: r, s: s}
+    %Cube{q: q, r: r, s: s}
   end
 end
