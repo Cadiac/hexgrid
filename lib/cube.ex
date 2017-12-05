@@ -24,7 +24,8 @@ defmodule Hexgrid.Cube do
 
   @doc """
   Creates a Cube or throws `ArgumentError` if the given arguments don't
-  satisfy constraint `q + r + s = 0`.
+  satisfy constraint `q + r + s = 0`. This function should be the preferred way
+  to create new Hexagons when using this module.
 
   ## Examples:
     iex> Cube.create!(1, -2, 1)
