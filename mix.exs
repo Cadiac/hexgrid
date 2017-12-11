@@ -7,7 +7,10 @@ defmodule Hextille.Mixfile do
       version: "0.1.0",
       elixir: "~> 1.5",
       start_permanent: Mix.env == :prod,
-      deps: deps()
+      description: description(),
+      package: package(),
+      deps: deps(),
+      source_url: "https://github.com/Cadiac/hextille"
     ]
   end
 
@@ -22,8 +25,21 @@ defmodule Hextille.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
+      {:ex_doc, "~> 0.16", only: :dev, runtime: false}
+    ]
+  end
+
+  defp description() do
+    "Module for common math operations in hexagonal grids."
+  end
+
+  defp package() do
+    [
+      # These are the default files included in the package
+      files: ["lib", "priv", "mix.exs", "README*", "LICENSE"],
+      maintainers: ["Jaakko Husso"],
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/Cadiac/hextille"}
     ]
   end
 end
