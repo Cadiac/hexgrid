@@ -36,7 +36,7 @@ defmodule Hextille.Mixfile do
   defp package() do
     [
       # These are the default files included in the package
-      files: ["lib", "priv", "mix.exs", "README*", "LICENSE"],
+      files: ["lib", "mix.exs", "README*", "LICENSE"],
       maintainers: ["Jaakko Husso"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/Cadiac/hextille"}
