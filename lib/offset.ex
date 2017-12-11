@@ -1,6 +1,6 @@
-defmodule Hexgrid.Offset do
-  alias Hexgrid.Offset, as: Offset
-  alias Hexgrid.Cube
+defmodule Hextille.Offset do
+  alias Hextille.Offset, as: Offset
+  alias Hextille.Cube
   use Bitwise
 
   @moduledoc """

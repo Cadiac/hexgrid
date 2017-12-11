@@ -1,10 +1,10 @@
-defmodule Hexgrid do
+defmodule Hextille.HexGrid do
   require Integer
-  alias Hexgrid.Offset
-  alias Hexgrid.Cube
+  alias Hextille.Offset
+  alias Hextille.Cube
 
   @moduledoc """
-  Hexgrid utilities
+  Module for creating HexGrids
   """
 
   @doc ~S"""
@@ -20,11 +20,11 @@ defmodule Hexgrid do
   @doc ~S"""
   Finds the columns and rows representing boundaries of a MapSet.
 
-  iex> a = Hexgrid.create(4, 4, -2, -2)
-  iex> b = Hexgrid.create(4, 4, -3, -5)
-  iex> Hexgrid.boundaries(a)
+  iex> a = HexGrid.create(4, 4, -2, -2)
+  iex> b = HexGrid.create(4, 4, -3, -5)
+  iex> HexGrid.boundaries(a)
   %{max_col: 2, max_row: 2, min_col: -2, min_row: -2}
-  iex> Hexgrid.boundaries(b)
+  iex> HexGrid.boundaries(b)
   %{max_col: 1, max_row: -1, min_col: -3, min_row: -5}
   """
   def boundaries(%MapSet{} = mapset) do
@@ -42,10 +42,10 @@ defmodule Hexgrid do
   @doc ~S"""
   Checks if hexagon has any neighbour in direction at MapSet
 
-  iex> h = Hexgrid.create(4, 4, -2, -2)
-  iex> Hexgrid.has_neighbour(h, %Cube{q: 1, r: -2, s: 1}, :east)
+  iex> h = HexGrid.create(4, 4, -2, -2)
+  iex> HexGrid.has_neighbour(h, %Cube{q: 1, r: -2, s: 1}, :east)
   true
-  iex> Hexgrid.has_neighbour(h, %Cube{q: 1, r: -2, s: 1}, :north_east)
+  iex> HexGrid.has_neighbour(h, %Cube{q: 1, r: -2, s: 1}, :north_east)
   false
   """
   def has_neighbour(%MapSet{} = mapset, %Cube{} = h, direction) do
@@ -56,8 +56,8 @@ defmodule Hexgrid do
   @doc ~S"""
   Checks if hexagon has any neighbours in MapSet
 
-  iex> h = Hexgrid.create(4, 4, -2, -2)
-  iex> Hexgrid.has_neighbour(h, %Cube{q: 1, r: -2, s: 1})
+  iex> h = HexGrid.create(4, 4, -2, -2)
+  iex> HexGrid.has_neighbour(h, %Cube{q: 1, r: -2, s: 1})
   %{east: true, north_east: false, north_west: false, south_east: true,
   south_west: true, west: true}
   """

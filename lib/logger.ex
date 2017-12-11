@@ -1,13 +1,13 @@
-defmodule Hexgrid.Logger do
+defmodule Hextille.Logger do
   require Integer
   require Logger
   use Bitwise
-  alias Hexgrid.Cube
-  alias Hexgrid.Offset
-  import Hexgrid, only: [boundaries: 1]
+  alias Hextille.Cube
+  alias Hextille.Offset
+  import Hextille.HexGrid, only: [boundaries: 1]
 
   @moduledoc """
-  Documentation for various Hexgrid Utils
+  Utility for logging hexagonal maps for debugging purposes
   """
 
   @doc ~S"""

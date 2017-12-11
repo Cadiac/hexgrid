@@ -1,5 +1,5 @@
-defmodule Hexgrid.Cube do
-  alias Hexgrid.Cube, as: Cube
+defmodule Hextille.Cube do
+  alias Hextille.Cube, as: Cube
 
   @moduledoc """
   Cube module that represents hexagon tiles using Cube coordinates.

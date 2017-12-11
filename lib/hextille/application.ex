@@ -1,4 +1,4 @@
-defmodule Hexgrid.Application do
+defmodule Hextille.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
@@ -8,13 +8,13 @@ defmodule Hexgrid.Application do
   def start(_type, _args) do
     # List all child processes to be supervised
     children = [
-      # Starts a worker by calling: Hexgrid.Worker.start_link(arg)
-      # {Hexgrid.Worker, arg},
+      # Starts a worker by calling: Hextille.Worker.start_link(arg)
+      # {Hextille.Worker, arg},
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: Hexgrid.Supervisor]
+    opts = [strategy: :one_for_one, name: Hextille.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end
